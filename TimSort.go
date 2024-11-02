@@ -1,7 +1,5 @@
 package main
 
-import "container/list"
-
 func getMinRun(N int) int {
 	var r int = 0
 	for {
@@ -23,32 +21,27 @@ func reverse(arr []int) {
 	}
 }
 
-func mergeRuns(runs list.List) []int {
+func mergeRuns(runs Stack) []int {
 	var runsAmount int = runs.Len()
-	var stack = list.New()
+	stack := Stack{}
 
 	for runs.Len() > 0 {
-		stack.PushBack(runs.Front())
-		runs.Remove(runs.Front())
+		stack.PushBack(runs.PopFront())
 	}
 
 	if runsAmount == 1 {
-		return runs.Back().Value.([]int)
+		return runs.Peek()
 
 	} else if runsAmount == 2 {
-		var X []int = runs.Front().Value.([]int)
-		runs.Remove(runs.Front())
-		var Y []int = runs.Front().Value.([]int)
+		var X []int = stack.PopFront()
+		var Y []int = stack.PopFront()
 		return MergeSort(X, Y)
 
 	} else {
 		for stack.Len() >= 3 {
-			var X []int = runs.Back().Value.([]int)
-			runs.Remove(runs.Back())
-			var Y []int = runs.Back().Value.([]int)
-			runs.Remove(runs.Back())
-			var Z []int = runs.Back().Value.([]int)
-			runs.Remove(runs.Back())
+			var X []int = stack.PopBack()
+			var Y []int = stack.PopBack()
+			var Z []int = stack.PopBack()
 
 			if len(Y) <= len(X) {
 				X = MergeSort(X, Y)
@@ -69,17 +62,17 @@ func mergeRuns(runs list.List) []int {
 	}
 
 	if stack.Len() == 2 {
-		var X []int = runs.Front().Value.([]int)
-		runs.Remove(runs.Front())
-		var Y []int = runs.Front().Value.([]int)
+		var X []int = runs.PopFront()
+		var Y []int = runs.PopFront()
 		return MergeSort(X, Y)
 	}
 
-	return runs.Back().Value.([]int)
+	return runs.Peek()
 }
+
 func TimSort(arr []int) []int {
 	var N int = len(arr)
-	var runs list.List
+	var runs Stack = Stack{}
 	var index int = 0
 	var RunFailFlag bool = false
 	var run []int
@@ -105,16 +98,16 @@ func TimSort(arr []int) []int {
 			runs.PushBack(run)
 		}
 
-		if run[index-2] > run[index-1] {
-			for run[index-2] > run[index-1] {
+		if arr[index-2] > arr[index-1] {
+			for arr[index-1] > arr[index] {
 				run = append(run, arr[index])
 				index++
 				if index >= len(arr) {
 					break
 				}
 			}
-		} else if run[index-2] <= run[index-1] {
-			for run[index-2] <= run[index-1] {
+		} else if arr[index-2] <= arr[index-1] {
+			for arr[index-1] <= arr[index] {
 				run = append(run, arr[index])
 				index++
 				if index >= len(arr) {
@@ -123,7 +116,7 @@ func TimSort(arr []int) []int {
 			}
 			reverse(run)
 		}
-		for len(run) < minRun && index < len(run) {
+		for len(run) < minRun && index < len(arr) {
 			RunFailFlag = true
 			run = append(run, arr[index])
 			index++
